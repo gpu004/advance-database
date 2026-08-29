@@ -1,6 +1,12 @@
-# Local reprozip Docker images
+# ReproZip on x86-64 Linux
 
-ReproZip's tracer currently requires x86-64 and does not support arm64 tracing ([issue #385](https://github.com/VIDA-NYU/reprozip/issues/385)). Choose the setup for your host:
+ReproZip's tracer requires x86-64 Linux and does not support arm64 tracing ([issue #385](https://github.com/VIDA-NYU/reprozip/issues/385)). See the [Docker setup instructions](docker-x86-linux/README.md).
 
-- [macOS with Docker Desktop (QEMU emulation)](mac-qemu/README.md)
-- [x86-64 Linux](docker-x86-linux/README.md)
+## Verify on Modal
+
+```bash
+modal run reprozip/run_on_modal.py
+```
+
+The smoke test traces a Python program, creates an `.rpz` bundle, inspects and
+unpacks it, reruns the program, and checks the reproduced output.

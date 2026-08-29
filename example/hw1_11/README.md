@@ -32,7 +32,4 @@ This builds the x86 Linux Dockerfile in Modal, deletes any previous generated q 
 
 ## Run locally with Docker
 
-Use the instructions for your platform:
-
-- [x86-64 Linux](../../aquery/docker-x86-linux/README.md)
-- [macOS with Docker Desktop](../../aquery/docker-mac/README.md)
+Follow the [x86-64 Linux instructions](../../aquery/docker-x86-linux/README.md).

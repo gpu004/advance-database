@@ -1,46 +1,64 @@
-# AQuery and KDB-X on x86-64 Linux
+# AQuery and KDB-X with Docker
 
-For the native, no-sudo installation path, see the [AQuery and KDB-X course notes](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md).
+This image contains the pinned x86-64 Linux builds of AQuery, KDB-X, q, and PyKX.
+
+It has been tested on x86-64 Linux and on Apple Silicon macOS through Docker Desktop with `--platform=linux/amd64`. Windows has not been tested for this course.
+
+For the complete student workflow, see the [AQuery and KDB-X lecture notes](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md).
 
 ## KDB-X Community license
 
-A kdb+ license is required.
+A KDB-X license is required.
 
-1. [Sign up with KX](https://developer.kx.com/products/kdb-x/install) and copy your community license from the KX website.
-2. From the repository root, create your local environment file:
-   ```sh
+1. Follow the [official KDB-X installation page](https://code.kx.com/kdb-x/get_started/kdb-x-install.html) to create a KX Developer account and obtain the base64-encoded Community license.
+2. From the repository root, create the local environment file:
+
+   ```bash
    cp .env.example .env
+   chmod 600 .env
    ```
-3. Open `.env` and paste the license after `KDB_LICENSE_B64=`:
+3. Put the complete license value in `.env`:
+
    ```env
-   KDB_LICENSE_B64=paste_your_license_here
+   KDB_LICENSE_B64=paste_the_complete_base64_license_value_here
    ```
 
-<img width="2746" height="1436" alt="KX license sign-up page" src="https://github.com/user-attachments/assets/6107d3ed-5f82-4cad-806b-47e656972786" />
+Do not commit `.env` or share the license.
 
-<img width="2824" height="1402" alt="KX license download page" src="https://github.com/user-attachments/assets/518a167e-7f36-4e87-a470-7013c5ed84c4" />
+## Build the image
 
-## Docker
-
-Requires an x86-64 Linux host.
+Run from the repository root:
 
 ```bash
 docker build --platform=linux/amd64 -t aquery:linux-x86 \
   -f aquery/docker-x86-linux/Dockerfile aquery
-
-docker run --rm -it --env-file .env aquery:linux-x86
 ```
+
+## Start q
+
+```bash
+docker run --rm -it --platform=linux/amd64 \
+  --env-file .env aquery:linux-x86
+```
+
+At the q prompt, run `1+1`. Enter a single backslash to exit.
 
 Compile and execute the simple sales example:
 
 ```bash
 rm -f example/simple_sales/simple_sales.generated.q
 docker run --rm --env-file .env \
+  --platform=linux/amd64 \
   -v "$PWD/example/simple_sales:/work" aquery:linux-x86 \
   a2q -c -a 1 -o simple_sales.generated.q simple_sales.a
 docker run --rm --env-file .env \
+  --platform=linux/amd64 \
   -v "$PWD/example/simple_sales:/work" aquery:linux-x86 \
   q simple_sales.generated.q
 ```
 
 The result contains `banana` with amount 7 and `coffee` with amount 12.
+
+## Apple Silicon note
+
+Docker Desktop runs this AMD64 image through emulation. The complete build, compile, and q execution path passed on an M1 Mac. It is slower than native ARM64 execution, especially during the first image build.

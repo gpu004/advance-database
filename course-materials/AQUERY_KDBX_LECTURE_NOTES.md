@@ -1,4 +1,4 @@
-# AQuery and KDB-X on x86-64 Linux
+# AQuery and KDB-X with Docker
 
 ## What the tools do
 
@@ -11,68 +11,53 @@ program.a      ->    a2q              ->    program.q   ->   q program.q
 
 These notes use the AQuery compiler from <https://github.com/josepablocam/aquery>. Do not use the unrelated AQuery2 `prompt.py` project described in older course slides.
 
+Every command in these notes runs AQuery and KDB-X inside the course Docker image. Students do not install Java, Scala, AQuery, PyKX, or q directly on the host.
+
+## Supported hosts
+
+The course image contains x86-64 Linux binaries.
+
+| Host | Status |
+| --- | --- |
+| x86-64 Linux with Docker | Course test passed |
+| Apple Silicon Mac with Docker Desktop | Course test passed through `linux/amd64` emulation |
+| Intel Mac with Docker Desktop | Not tested for this course |
+| Windows with Docker Desktop or WSL | Not tested for this course |
+
+The complete Apple Silicon workflow passed on an M1 Mac with Docker Desktop 4.87. Native KDB-X and AQuery also worked on that Mac, but the course uses Docker so Linux and Mac students follow the same commands.
+
 ## Requirements
 
-- Linux on x86-64
-- A KX Community account and license
-- Bash, Git, curl, gzip, unzip, and `file`
-- Java for the Scala-based AQuery compiler
-- No administrator access is required
+- Docker Engine on x86-64 Linux, or Docker Desktop on a Mac
+- Git
+- A KX Developer account and Community license
 
-Check the host:
+Check Docker before continuing:
 
 ```bash
-uname -m
-java -version
-git --version
-curl --version
-unzip -v | head -1
+docker version
+docker info
 ```
 
-`uname -m` must print `x86_64`. If Java is unavailable on the assigned NYU compute server, ask the course staff which Java module to load.
+Both commands must report a running Docker server. On an Apple Silicon Mac, the server architecture may be ARM64. The course commands explicitly request the `linux/amd64` image.
+
+## Get the course repository
+
+```bash
+git clone https://github.com/gpu004/advance-database.git
+cd advance-database
+```
+
+Run the remaining commands from the repository root.
 
 ## Get a KDB-X Community license
 
 1. Open the official KDB-X installation page: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
 2. Sign in or create a KX Developer account.
-3. Obtain the base64-encoded Community license value.
-4. Keep the license private. Do not place it in Git, a screenshot, lecture notes, or a shared chat.
+3. Obtain the complete base64-encoded Community license value.
+4. Keep the license private. Do not place it in Git, screenshots, lecture notes, or shared chat messages.
 
-## Clone the course setup
-
-```bash
-cd "$HOME"
-git clone https://github.com/gpu004/advance-database.git
-cd advance-database
-```
-
-Run the remaining installation commands from the `advance-database` repository root.
-
-## Install KDB-X in the home directory
-
-```bash
-export KDBX_HOME="$HOME/.local/share/kdb-x"
-bash aquery/image/install_kdbx.sh
-source "$KDBX_HOME/env.sh"
-which q
-```
-
-The script downloads the pinned x86-64 KDB-X binary, checks its SHA-256 digest, and installs q below `$HOME/.local`. It does not write to system directories.
-
-## Install the AQuery compiler
-
-```bash
-bash aquery/image/install_aquery.sh
-export PATH="$HOME/.local/bin:$PATH"
-which a2q
-a2q -h || true
-```
-
-The installer builds a pinned AQuery revision and writes the `a2q` launcher to `$HOME/.local/bin`.
-
-## Store the license locally
-
-Create a local environment file from the provided template:
+Create the local environment file:
 
 ```bash
 cp .env.example .env
@@ -85,27 +70,41 @@ Edit `.env` and replace the example value:
 KDB_LICENSE_B64=paste_the_complete_base64_license_value_here
 ```
 
-Load the value into the current shell:
-
-```bash
-set -a
-source .env
-set +a
-source "$KDBX_HOME/env.sh"
-```
-
-The repository ignores `.env`, but students should still confirm that it is not staged before committing:
+Confirm that Git does not include the file:
 
 ```bash
 git status --short
 ```
 
-## Start q
+Do not print the license while asking for help.
 
-Use the license wrapper to create a private temporary license file and start q:
+## Build the course image
 
 ```bash
-aquery/image/with_kx_license.sh q
+docker build --platform=linux/amd64 -t aquery:linux-x86 \
+  -f aquery/docker-x86-linux/Dockerfile aquery
+```
+
+The first build downloads the pinned base image, KDB-X, AQuery source, Scala dependencies, and PyKX. It is slower on Apple Silicon because Docker emulates an AMD64 processor.
+
+Confirm the image architecture:
+
+```bash
+docker image inspect aquery:linux-x86 \
+  --format 'os={{.Os}} architecture={{.Architecture}}'
+```
+
+Expected result:
+
+```text
+os=linux architecture=amd64
+```
+
+## Start q
+
+```bash
+docker run --rm -it --platform=linux/amd64 \
+  --env-file .env aquery:linux-x86
 ```
 
 At the q prompt, run a smoke test:
@@ -123,13 +122,13 @@ q)\
 
 ## Run a few q queries
 
-Create an in-memory table:
+Start q again, then create an in-memory table:
 
 ```q
 q)sales:([] item:`apple`banana`coffee; amount:3 7 12)
 ```
 
-Display it:
+Display the table:
 
 ```q
 q)select from sales
@@ -148,49 +147,38 @@ Show the items whose amount is greater than 5:
 q)select from sales where amount>5
 ```
 
-The last query returns `banana` with amount 7 and `coffee` with amount 12. These commands demonstrate a table, a row count, and a filter.
+The last query returns `banana` with amount 7 and `coffee` with amount 12.
 
 ## Compile and run the included AQuery example
 
-Open the example directory from the repository root:
+The example directory contains `sales.csv` and `simple_sales.a`. The query loads three rows and selects amounts greater than 5.
+
+Remove an older generated file, if present:
 
 ```bash
-cd example/simple_sales
-```
-
-The included `sales.csv` contains:
-
-```csv
-item,amount
-apple,3
-banana,7
-coffee,12
-```
-
-The included `simple_sales.a` query is:
-
-```sql
-CREATE TABLE sales(item STRING, amount INT)
-
-LOAD DATA INFILE "sales.csv" INTO TABLE sales FIELDS TERMINATED BY ","
-
-SELECT item, amount
-FROM sales
-WHERE amount > 5
+rm -f example/simple_sales/simple_sales.generated.q
 ```
 
 Compile the AQuery file into q:
 
 ```bash
-rm -f simple_sales.generated.q
-a2q -c -a 1 -o simple_sales.generated.q simple_sales.a
-ls -lh simple_sales.generated.q
+docker run --rm --platform=linux/amd64 --env-file .env \
+  -v "$PWD/example/simple_sales:/work" aquery:linux-x86 \
+  a2q -c -a 1 -o simple_sales.generated.q simple_sales.a
+```
+
+Confirm that the compiler created the file:
+
+```bash
+ls -lh example/simple_sales/simple_sales.generated.q
 ```
 
 Run the generated program with KDB-X:
 
 ```bash
-../../aquery/image/with_kx_license.sh q simple_sales.generated.q
+docker run --rm --platform=linux/amd64 --env-file .env \
+  -v "$PWD/example/simple_sales:/work" aquery:linux-x86 \
+  q simple_sales.generated.q
 ```
 
 The result contains:
@@ -201,44 +189,29 @@ banana  7
 coffee  12
 ```
 
-The example shows the full workflow. AQuery defines and loads the table, filters the rows, generates q, and KDB-X executes the generated program.
+The Docker bind mount maps the host example directory to `/work` in the container. The generated q file remains on the host after the container exits.
 
-## Run a q script
+## Run your own AQuery file
 
-Return to the repository root:
-
-```bash
-cd ../..
-```
-
-Save the following as `hello.q`:
-
-```q
-t:([] item:`a`b`c; value:4 7 2);
-show select from t where value>3;
-exit 0;
-```
-
-Run it from the repository root:
+Place the `.a` file and its input data in one directory. From that directory, run:
 
 ```bash
-source "$KDBX_HOME/env.sh"
-set -a
-source .env
-set +a
-aquery/image/with_kx_license.sh q hello.q
+docker run --rm --platform=linux/amd64 --env-file /path/to/advance-database/.env \
+  -v "$PWD:/work" aquery:linux-x86 \
+  a2q -c -a 1 -o program.generated.q program.a
+
+docker run --rm --platform=linux/amd64 --env-file /path/to/advance-database/.env \
+  -v "$PWD:/work" aquery:linux-x86 \
+  q program.generated.q
 ```
+
+Replace `/path/to/advance-database/.env` with the absolute path to the private environment file.
 
 ## Troubleshooting
 
-### `q: command not found`
+### Docker server is unavailable
 
-Reload the KDB-X environment and check the path:
-
-```bash
-source "$KDBX_HOME/env.sh"
-which q
-```
+If `docker version` reports that it cannot connect to the daemon, start Docker Engine or Docker Desktop and retry.
 
 ### License error
 
@@ -248,25 +221,36 @@ Confirm that `.env` contains one complete base64 value and has private permissio
 chmod 600 .env
 ```
 
-Do not print the license in terminal output that will be shared.
+Do not paste the license into an issue or support message.
 
-### `a2q: command not found`
+### Image runs with the wrong architecture
 
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-which a2q
-```
+Keep `--platform=linux/amd64` on both `docker build` and `docker run`. The image contains AMD64 binaries.
 
-Rerun `bash aquery/image/install_aquery.sh` if the launcher is still missing.
+### Bind mount is empty on macOS
 
-### Java error
+Open Docker Desktop's file-sharing settings and confirm that the repository directory is shared. Then rerun the command from the repository root.
 
-Run `java -version` and record the complete error. Ask course staff which Java module the assigned compute server supports.
+### AQuery cannot find a CSV file
+
+Mount the directory containing both the `.a` file and its data to `/work`. Refer to the data with a path relative to that directory.
+
+### Build fails while downloading dependencies
+
+Record the complete `docker build` output. Do not replace the pinned image digests or AQuery revision with unverified versions.
+
+## Verified reference result
+
+The complete example passed on August 30, 2026 in both environments:
+
+- x86-64 Linux through Modal
+- Apple M1 macOS through Docker Desktop 4.87 using `linux/amd64`
+
+Both runs generated an 8,002-byte q program and returned `banana = 7` and `coffee = 12`.
 
 ## References
 
-- KDB-X installation: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
-- Introduction to q: <https://code.kx.com/kdb-x/learn/brief-introduction.html>
-- Course setup: <https://github.com/gpu004/advance-database>
+- KDB-X installation and licensing: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
 - AQuery source: <https://github.com/josepablocam/aquery>
-- NYU CIMS access servers: <https://cims.nyu.edu/dynamic/systems/resources/accessservers/>
+- Docker Desktop: <https://docs.docker.com/desktop/>
+- Course repository: <https://github.com/gpu004/advance-database>

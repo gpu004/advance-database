@@ -1,8 +1,8 @@
-# ReproZip on x86-64 Linux
+# ReproZip with Docker on x86-64 Linux
 
 ## What ReproZip does
 
-ReproZip records one command and the files that command uses. It can then create an `.rpz` bundle containing the program, data, libraries, environment information, and recorded command. ReproUnzip inspects the bundle and reruns the command.
+ReproZip records one command and the files that command uses. It creates an `.rpz` bundle containing the program, data, libraries, environment information, and recorded command. ReproUnzip inspects the bundle and reruns the command.
 
 ```text
 working command  ->  reprozip trace  ->  reprozip pack  ->  reprounzip run
@@ -10,9 +10,24 @@ working command  ->  reprozip trace  ->  reprozip pack  ->  reprounzip run
 
 ReproZip does not repair a failing program. Run the original command successfully before tracing it.
 
-## Platform
+Every command in these notes runs inside the course Docker image. Students do not install ReproZip, ReproUnzip, or Python packages directly on the host.
 
-ReproZip tracing requires Linux. These course instructions target x86-64 Linux.
+## Supported hosts
+
+ReproZip traces Linux system calls with `ptrace`. The course workflow requires an x86-64 Linux Docker host.
+
+| Host | Status |
+| --- | --- |
+| x86-64 Linux with Docker | Course test passed |
+| Apple Silicon Mac with Docker Desktop | Course test failed during tracing |
+| Intel Mac with Docker Desktop | Not tested |
+| Windows with Docker Desktop or WSL | Not tested |
+
+The image built on an M1 Mac, but `reprozip trace` reported invalid emulated syscalls and crashed even when the container had `SYS_PTRACE`. Do not ask Mac students to trace through Docker Desktop's AMD64 emulation.
+
+Students without an x86-64 Linux desktop should use the compute server assigned for the course.
+
+## Connect to the course server
 
 Students using CIMS should connect through the access server and then move to the assigned compute server:
 
@@ -20,45 +35,64 @@ Students using CIMS should connect through the access server and then move to th
 ssh <netid>@access.cims.nyu.edu
 ssh <course-compute-server>
 hostname
+uname -s
 uname -m
-python3 --version
+docker version
 ```
 
-Do not run coursework on `access.cims.nyu.edu`. The instructor should supply the compute-server hostname.
+The operating system must be Linux and `uname -m` must print `x86_64`. Do not run coursework on `access.cims.nyu.edu`. The instructor must provide the compute-server hostname and confirm that Docker is available there.
 
-## Install without sudo
+If Docker is unavailable or prohibited, stop and ask course staff for the approved container runtime. Do not install a system daemon on a shared server.
 
-Create a Python virtual environment in the home directory:
+## Get the course repository
 
 ```bash
-python3 -m venv "$HOME/.venvs/reprozip"
-source "$HOME/.venvs/reprozip/bin/activate"
-python -m pip install --upgrade pip
-python -m pip install reprozip==1.3.2 reprounzip==1.3.2
+git clone https://github.com/gpu004/advance-database.git
+cd advance-database
 ```
 
-Verify the installation:
+Run the remaining setup commands from the repository root.
+
+## Build the course image
 
 ```bash
-which python
-which reprozip
-reprozip --version
-reprounzip --version
+docker build --platform=linux/amd64 -t reprozip:linux-x86 \
+  -f reprozip/docker-x86-linux/Dockerfile reprozip/docker-x86-linux
 ```
 
-Activate the environment again after a new login:
+Confirm the image architecture:
 
 ```bash
-source "$HOME/.venvs/reprozip/bin/activate"
+docker image inspect reprozip:linux-x86 \
+  --format 'os={{.Os}} architecture={{.Architecture}}'
 ```
 
-If `python3 -m venv` fails, do not use sudo. Record the hostname and complete error, then ask course staff which Python environment students should use.
+Expected result:
+
+```text
+os=linux architecture=amd64
+```
+
+## Start the course container
+
+Change to the project directory that contains the program and its inputs. Then start the container:
+
+```bash
+docker run --rm -it --platform=linux/amd64 \
+  --cap-add=SYS_PTRACE \
+  -v "$PWD:/work" -w /work \
+  reprozip:linux-x86
+```
+
+`--cap-add=SYS_PTRACE` is required for tracing. The bind mount maps the current host directory to `/work`, so traces and bundles remain on the host after the container exits.
+
+The remaining commands in the required workflow run inside this container.
 
 ## The required workflow
 
 ### 1. Test the original command
 
-Run the command normally and inspect its output:
+Run the program normally and inspect its output:
 
 ```bash
 python3 demo.py input.txt output.txt
@@ -86,7 +120,7 @@ Before packing, inspect `config.yml` for:
 
 - private keys, passwords, access tokens, and credentials
 - licensed files that must not be distributed
-- browser profiles or unrelated files from the home directory
+- browser profiles or unrelated files
 - large datasets that should not be included
 - the exact command the grader should run
 
@@ -108,20 +142,19 @@ reprounzip showfiles project.rpz
 
 `reprounzip info` reports the architecture, Linux distribution, recorded command, software packages, and compatible unpackers.
 
-`reprounzip showfiles` reports the named input and output files that can be replaced or downloaded.
+`reprounzip showfiles` reports named input and output files that can be replaced or downloaded.
 
 ### 5. Test the bundle in a fresh directory
 
-Do not test only inside the original project folder.
+Do not test only beside the original program.
 
 ```bash
-mkdir -p "$HOME/reprozip-check"
-cd "$HOME/reprozip-check"
-reprounzip directory setup /path/to/project.rpz unpacked
-reprounzip directory run unpacked
+mkdir -p bundle-check
+reprounzip directory setup project.rpz bundle-check/unpacked
+reprounzip directory run bundle-check/unpacked
 ```
 
-A successful run exits with status 0 and produces the expected output below the `unpacked` directory.
+A successful run exits with status 0. Inspect the reproduced output under `bundle-check/unpacked/root/work/`.
 
 ## Multiple runs and test cases
 
@@ -154,18 +187,11 @@ reprozip trace python3 main.py input.txt output.txt
 
 ### Java
 
-```bash
-java -jar project.jar input.txt output.txt
-reprozip trace java -jar project.jar input.txt output.txt
-```
+The course image does not include Java. Extend the Dockerfile with the required pinned JDK before tracing a Java project. Do not install Java interactively in a running container because that change disappears when the container exits.
 
 ### C or C++
 
-```bash
-g++ -O2 -o project project.cpp
-./project input.txt output.txt
-reprozip trace ./project input.txt output.txt
-```
+The course image does not include a compiler. Extend the Dockerfile with the required pinned compiler before tracing a C or C++ project.
 
 ### Shell script
 
@@ -177,7 +203,7 @@ reprozip trace ./run.sh
 
 ## Final-project bundle checklist
 
-- The program runs normally on the assigned x86-64 Linux compute server.
+- The original program runs inside the course image on an x86-64 Linux Docker host.
 - The traced command covers every required test or input.
 - `.reprozip-trace/config.yml` contains no credentials or unrelated personal files.
 - The `.rpz` filename identifies the project or team.
@@ -189,24 +215,27 @@ reprozip trace ./run.sh
 
 ## Troubleshooting
 
-### `reprozip: command not found`
+### Docker server is unavailable
 
-```bash
-source "$HOME/.venvs/reprozip/bin/activate"
-which reprozip
-```
+If `docker version` cannot connect to the daemon, ask course staff which x86-64 Linux host provides the approved Docker service.
 
-### Wrong architecture
+### Wrong host architecture
 
 ```bash
 uname -m
 ```
 
-Use the assigned x86-64 compute server.
+Use an x86-64 Linux host. Do not use Apple Silicon AMD64 emulation for ReproZip tracing.
 
-### Trace fails or hangs
+### Trace reports a permission error
 
-ReproZip uses Linux `ptrace`. Record the hostname, kernel, exact command, ReproZip version, and complete error. Ask course staff whether `ptrace` is allowed on that host.
+Exit the container and confirm that the `docker run` command includes:
+
+```text
+--cap-add=SYS_PTRACE
+```
+
+If tracing still fails, record the hostname, kernel, Docker version, exact command, ReproZip version, and complete error. Ask course staff whether `ptrace` is permitted on that host.
 
 ### Bundle is unexpectedly large
 
@@ -216,10 +245,16 @@ Inspect `.reprozip-trace/config.yml`, remove unrelated files from the configurat
 
 Test in a fresh directory. Retrace while the original program opens every required file.
 
+## Verified reference result
+
+The complete workflow passed on x86-64 Debian 12 through Modal on August 30, 2026 with Python 3.11.14, ReproZip 1.3.2, and ReproUnzip 1.3.2. The trace and reproduced run both produced `REPROZIP ON NYU LINUX`.
+
+The same trace failed under Docker Desktop's AMD64 emulation on an Apple M1 Mac. That failure is why these instructions require an x86-64 Linux host.
+
 ## References
 
 - ReproZip quickstart: <https://github.com/VIDA-NYU/reprozip#quickstart>
 - ReproZip packing: <https://reprozip.readthedocs.io/en/latest/packing.html>
 - ReproUnzip: <https://reprozip.readthedocs.io/en/latest/unpacking.html>
-- Course setup and smoke test: <https://github.com/gpu004/advance-database>
+- Course repository: <https://github.com/gpu004/advance-database>
 - NYU CIMS access servers: <https://cims.nyu.edu/dynamic/systems/resources/accessservers/>

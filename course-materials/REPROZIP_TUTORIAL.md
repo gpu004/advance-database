@@ -1,34 +1,30 @@
-# ReproZip worked tutorial
+# ReproZip Docker tutorial
 
 This tutorial creates a small Python program, traces it, builds an `.rpz` bundle, and reruns it through ReproUnzip.
 
-## 1. Install the tools
+The workflow requires Docker on an x86-64 Linux host. Do not run this tutorial through Docker Desktop's AMD64 emulation on Apple Silicon. The trace failed in that environment during course testing.
 
-Use x86-64 Linux:
+## 1. Check the host
 
 ```bash
+uname -s
 uname -m
+docker version
 ```
 
-The output must be `x86_64`.
+The expected operating system is Linux and the expected architecture is `x86_64`.
 
-Create and activate a virtual environment:
+## 2. Get the course repository and build the image
 
 ```bash
-python3 -m venv "$HOME/.venvs/reprozip"
-source "$HOME/.venvs/reprozip/bin/activate"
-python -m pip install --upgrade pip
-python -m pip install reprozip==1.3.2 reprounzip==1.3.2
+git clone https://github.com/gpu004/advance-database.git
+cd advance-database
+
+docker build --platform=linux/amd64 -t reprozip:linux-x86 \
+  -f reprozip/docker-x86-linux/Dockerfile reprozip/docker-x86-linux
 ```
 
-Check the installed versions:
-
-```bash
-reprozip --version
-reprounzip --version
-```
-
-## 2. Create the example
+## 3. Create the example on the host
 
 ```bash
 mkdir -p "$HOME/reprozip-demo"
@@ -51,14 +47,29 @@ Create an input file:
 printf 'reprozip on nyu linux\n' > input.txt
 ```
 
-The directory should now contain:
+The directory should contain:
 
 ```text
 demo.py
 input.txt
 ```
 
-## 3. Run the program normally
+## 4. Start the course container
+
+Run this command from `$HOME/reprozip-demo`:
+
+```bash
+docker run --rm -it --platform=linux/amd64 \
+  --cap-add=SYS_PTRACE \
+  -v "$PWD:/work" -w /work \
+  reprozip:linux-x86
+```
+
+The current host directory is now `/work` inside the container. Files created below `/work` remain on the host.
+
+Run steps 5 through 10 inside this container.
+
+## 5. Run the program normally
 
 ```bash
 python3 demo.py input.txt output.txt
@@ -73,9 +84,7 @@ REPROZIP ON NYU LINUX
 
 Stop and fix the program if this command fails.
 
-## 4. Trace the command
-
-Run the same command through ReproZip:
+## 6. Trace the command
 
 ```bash
 reprozip trace python3 demo.py input.txt output.txt
@@ -90,20 +99,16 @@ less .reprozip-trace/config.yml
 
 Check the recorded command and review the file list for credentials, private files, and unrelated data.
 
-## 5. Create the bundle
+## 7. Create the bundle
 
 ```bash
 reprozip pack smoke-test.rpz
 ls -lh smoke-test.rpz
 ```
 
-This creates the file to transfer or submit:
+The `.rpz` file remains in `$HOME/reprozip-demo` on the host.
 
-```text
-smoke-test.rpz
-```
-
-## 6. Inspect the bundle
+## 8. Inspect the bundle
 
 ```bash
 reprounzip info smoke-test.rpz
@@ -117,39 +122,22 @@ The information should include:
 - compatible unpackers including `directory`
 - named input and output files
 
-## 7. Reproduce it in a fresh directory
+## 9. Reproduce it in a fresh directory
 
-Create a separate test directory:
-
-```bash
-mkdir -p "$HOME/reprozip-check"
-cd "$HOME/reprozip-check"
-```
-
-Set up the bundle:
+Create a separate directory inside the mounted project:
 
 ```bash
-reprounzip directory setup "$HOME/reprozip-demo/smoke-test.rpz" unpacked
-```
-
-Run the recorded command:
-
-```bash
-reprounzip directory run unpacked
+mkdir -p check
+reprounzip directory setup smoke-test.rpz check/unpacked
+reprounzip directory run check/unpacked
 ```
 
 The command must finish with status 0.
 
-Find the reproduced output:
+Inspect the reproduced output:
 
 ```bash
-find unpacked -name output.txt -print
-```
-
-Inspect the path printed by `find`:
-
-```bash
-cat /path/printed/by/find/output.txt
+cat check/unpacked/root/work/output.txt
 ```
 
 Expected output:
@@ -160,12 +148,12 @@ REPROZIP ON NYU LINUX
 
 The original output and reproduced output must match.
 
-## 8. Replace an input
+## 10. Replace an input
 
 First inspect the file identifiers:
 
 ```bash
-reprounzip showfiles "$HOME/reprozip-demo/smoke-test.rpz"
+reprounzip showfiles smoke-test.rpz
 ```
 
 The example normally labels the command-line input as `arg2` and the output as `arg3`. Always use the identifiers printed by your own bundle.
@@ -179,14 +167,14 @@ printf 'second test\n' > new_input.txt
 Upload and run it:
 
 ```bash
-reprounzip directory upload unpacked new_input.txt:arg2
-reprounzip directory run unpacked
+reprounzip directory upload check/unpacked new_input.txt:arg2
+reprounzip directory run check/unpacked
 ```
 
 Download the new output:
 
 ```bash
-reprounzip directory download unpacked arg3:result.txt
+reprounzip directory download check/unpacked arg3:result.txt
 cat result.txt
 ```
 
@@ -196,7 +184,24 @@ Expected output:
 SECOND TEST
 ```
 
-## 9. What to submit for a course project
+Enter `exit` to leave the container. The trace, bundle, unpacked directory, and result remain in `$HOME/reprozip-demo` on the host.
+
+## 11. Start the container again later
+
+Return to the project directory and repeat the same command:
+
+```bash
+cd "$HOME/reprozip-demo"
+
+docker run --rm -it --platform=linux/amd64 \
+  --cap-add=SYS_PTRACE \
+  -v "$PWD:/work" -w /work \
+  reprozip:linux-x86
+```
+
+The container is disposable. The bind-mounted project files are not.
+
+## What to submit for a course project
 
 At minimum, submit:
 
@@ -206,10 +211,10 @@ At minimum, submit:
 - the language and runtime version
 - any assumptions about the input files or host
 
-Before submitting, repeat `reprounzip directory setup` and `reprounzip directory run` in a fresh directory. Do not assume that a successful `reprozip pack` command proves the bundle can be reproduced.
+Before submitting, repeat `reprounzip directory setup` and `reprounzip directory run` in a fresh directory. A successful `reprozip pack` command alone does not prove the bundle can be reproduced.
 
 ## Verified reference result
 
 This workflow was tested on x86-64 Debian 12 with Python 3.11.14, ReproZip 1.3.2, and ReproUnzip 1.3.2. The trace and reproduced run both produced `REPROZIP ON NYU LINUX`.
 
-The assigned NYU compute server must still permit `ptrace`, which ReproZip uses to record system calls.
+Course staff must still confirm that the assigned NYU compute server provides Docker and permits `ptrace`.

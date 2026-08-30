@@ -2,7 +2,7 @@
 
 This tutorial creates a small Python program, traces it, builds an `.rpz` bundle, and reruns it through ReproUnzip.
 
-The workflow requires Docker on an x86-64 Linux host. Do not run this tutorial through Docker Desktop's AMD64 emulation on Apple Silicon. The trace failed in that environment during course testing.
+You need Docker on x86 Linux. Do not run this tutorial with Mac M-series Docker. The trace failed in that environment during course testing.
 
 ## 1. Check the host
 
@@ -213,8 +213,4 @@ At minimum, submit:
 
 Before submitting, repeat `reprounzip directory setup` and `reprounzip directory run` in a fresh directory. A successful `reprozip pack` command alone does not prove the bundle can be reproduced.
 
-## Verified reference result
-
-This workflow was tested on x86-64 Debian 12 with Python 3.11.14, ReproZip 1.3.2, and ReproUnzip 1.3.2. The trace and reproduced run both produced `REPROZIP ON NYU LINUX`.
-
-Course staff must still confirm that the assigned NYU compute server provides Docker and permits `ptrace`.
+Last verified August 30, 2026. See the [validation record](README.md#validation-record).

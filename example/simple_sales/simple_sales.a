@@ -1,0 +1,7 @@
+CREATE TABLE sales(item STRING, amount INT)
+
+LOAD DATA INFILE "sales.csv" INTO TABLE sales FIELDS TERMINATED BY ","
+
+SELECT item, amount
+FROM sales
+WHERE amount > 5

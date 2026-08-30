@@ -1,6 +1,8 @@
-# aquery on x86 Linux
+# AQuery and KDB-X on x86-64 Linux
 
-## kdb+ Community License
+For the native, no-sudo installation path, see the [AQuery and KDB-X course notes](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md).
+
+## KDB-X Community license
 
 A kdb+ license is required.
 
@@ -29,14 +31,16 @@ docker build --platform=linux/amd64 -t aquery:linux-x86 \
 docker run --rm -it --env-file .env aquery:linux-x86
 ```
 
-Regenerate and execute the HW1 Q11 q file:
+Compile and execute the simple sales example:
 
 ```bash
-rm -f example/hw1_11/max_loss.generated.q
+rm -f example/simple_sales/simple_sales.generated.q
 docker run --rm --env-file .env \
-  -v "$PWD/example/hw1_11:/work" aquery:linux-x86 \
-  a2q -c -a 1 -o max_loss.generated.q max_loss.a
+  -v "$PWD/example/simple_sales:/work" aquery:linux-x86 \
+  a2q -c -a 1 -o simple_sales.generated.q simple_sales.a
 docker run --rm --env-file .env \
-  -v "$PWD/example/hw1_11:/work" aquery:linux-x86 \
-  q max_loss.generated.q
+  -v "$PWD/example/simple_sales:/work" aquery:linux-x86 \
+  q simple_sales.generated.q
 ```
+
+The result contains `banana` with amount 7 and `coffee` with amount 12.

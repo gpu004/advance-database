@@ -2,6 +2,8 @@
 
 ReproZip's tracer requires x86-64 Linux and does not support arm64 tracing ([issue #385](https://github.com/VIDA-NYU/reprozip/issues/385)). See the [Docker setup instructions](docker-x86-linux/README.md).
 
+Student-facing instructions are in the [ReproZip lecture notes](../course-materials/REPROZIP_LECTURE_NOTES.md) and [worked tutorial](../course-materials/REPROZIP_TUTORIAL.md).
+
 ## Verify on Modal
 
 ```bash

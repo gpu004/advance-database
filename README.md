@@ -14,7 +14,7 @@ Docker-based course material for AQuery, KDB-X, and ReproZip.
 | Workflow | Mac M-series | Mac M-series Docker | x86 Linux |
 | --- | --- | --- | --- |
 | AQuery and KDB-X | Works | Works | Works |
-| ReproZip tracing | Untested | Failed (trace) | Works |
+| ReproZip tracing | Failed (trace) | Failed (trace) | Works |
 
 ReproZip tracing needs x86 Linux. Mac M-series Docker fails. See [platform support](course-materials/README.md#platform-support).
 

@@ -1,4 +1,6 @@
-# ReproZip with Docker on x86-64 Linux
+# ReproZip with Docker on x86 Linux
+
+ReproZip tracing needs x86 Linux. Mac M-series Docker fails. See [platform support](README.md#platform-support) for the tested hosts.
 
 ## What ReproZip does
 
@@ -12,20 +14,9 @@ ReproZip does not repair a failing program. Run the original command successfull
 
 Every command in these notes runs inside the course Docker image. Students do not install ReproZip, ReproUnzip, or Python packages directly on the host.
 
-## Supported hosts
+ReproZip traces Linux system calls with `ptrace`. The course workflow requires an x86 Linux Docker host.
 
-ReproZip traces Linux system calls with `ptrace`. The course workflow requires an x86-64 Linux Docker host.
-
-| Host | Status |
-| --- | --- |
-| x86-64 Linux with Docker | Course test passed |
-| Apple Silicon Mac with Docker Desktop | Course test failed during tracing |
-| Intel Mac with Docker Desktop | Not tested |
-| Windows with Docker Desktop or WSL | Not tested |
-
-The image built on an M1 Mac, but `reprozip trace` reported invalid emulated syscalls and crashed even when the container had `SYS_PTRACE`. Do not ask Mac students to trace through Docker Desktop's AMD64 emulation.
-
-Students without an x86-64 Linux desktop should use the compute server assigned for the course.
+Students without an x86 Linux desktop should use the compute server assigned for the course.
 
 ## Connect to the course server
 
@@ -203,7 +194,7 @@ reprozip trace ./run.sh
 
 ## Final-project bundle checklist
 
-- The original program runs inside the course image on an x86-64 Linux Docker host.
+- The original program runs inside the course image on an x86 Linux Docker host.
 - The traced command covers every required test or input.
 - `.reprozip-trace/config.yml` contains no credentials or unrelated personal files.
 - The `.rpz` filename identifies the project or team.
@@ -217,7 +208,7 @@ reprozip trace ./run.sh
 
 ### Docker server is unavailable
 
-If `docker version` cannot connect to the daemon, ask course staff which x86-64 Linux host provides the approved Docker service.
+If `docker version` cannot connect to the daemon, ask course staff which x86 Linux host provides the approved Docker service.
 
 ### Wrong host architecture
 
@@ -225,7 +216,7 @@ If `docker version` cannot connect to the daemon, ask course staff which x86-64 
 uname -m
 ```
 
-Use an x86-64 Linux host. Do not use Apple Silicon AMD64 emulation for ReproZip tracing.
+Use an x86 Linux host. Do not use Mac M-series Docker for ReproZip tracing.
 
 ### Trace reports a permission error
 
@@ -245,11 +236,7 @@ Inspect `.reprozip-trace/config.yml`, remove unrelated files from the configurat
 
 Test in a fresh directory. Retrace while the original program opens every required file.
 
-## Verified reference result
-
-The complete workflow passed on x86-64 Debian 12 through Modal on August 30, 2026 with Python 3.11.14, ReproZip 1.3.2, and ReproUnzip 1.3.2. The trace and reproduced run both produced `REPROZIP ON NYU LINUX`.
-
-The same trace failed under Docker Desktop's AMD64 emulation on an Apple M1 Mac. That failure is why these instructions require an x86-64 Linux host.
+Last verified August 30, 2026. See the [validation record](README.md#validation-record).
 
 ## References
 

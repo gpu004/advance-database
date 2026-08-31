@@ -7,7 +7,7 @@
 __pycache__/
 *.py[cod]
 
-# macOS metadata
+# Finder metadata
 .DS_Store
 
 # AQuery-generated q files

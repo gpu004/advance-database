@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the open-source AQuery compiler (a2q) from josepablocam/aquery.
-# Linux x86_64 + Java 8 (Scala 2.11 toolchain) for Modal image builds.
+# Linux x86_64 + Java 8 (Scala 2.11 toolchain) for Docker image builds.
 #
 # Pins: bump COURSIER_* / AQUERY_GIT_SHA together when upgrading.
 set -euo pipefail

@@ -1,8 +1,10 @@
-# ReproZip with Docker on x86-64 Linux
+# ReproZip with Docker on x86 Linux
 
-This image contains ReproZip 1.3.2 and ReproUnzip 1.3.2. It requires an x86-64 Linux Docker host.
+This image contains ReproZip 1.3.2 and ReproUnzip 1.3.2. It requires an x86 Linux Docker host.
 
-Apple Silicon Docker Desktop is not supported for this workflow. AMD64 emulation failed during `reprozip trace` on the tested M1 Mac.
+Student instructions: start with the [ReproZip lecture notes](../../course-materials/REPROZIP_LECTURE_NOTES.md). This file is the build/run reference for the image.
+
+ReproZip tracing needs x86 Linux. Mac M-series Docker fails. See [platform support](../../course-materials/README.md#platform-support).
 
 ## Build the image
 
@@ -34,4 +36,4 @@ reprozip pack project.rpz
 reprounzip info project.rpz
 ```
 
-See the [worked tutorial](../../course-materials/REPROZIP_TUTORIAL.md) for the complete trace, pack, inspect, unpack, and rerun sequence.
+See the [worked tutorial](../../course-materials/REPROZIP_TUTORIAL.md) for the trace, pack, inspect, unpack, and rerun sequence.

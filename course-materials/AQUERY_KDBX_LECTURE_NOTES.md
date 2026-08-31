@@ -1,5 +1,7 @@
 # AQuery and KDB-X with Docker
 
+The course AQuery workflow works with Mac M-series Docker and x86 Linux. See [platform support](README.md#platform-support) for the tested hosts.
+
 ## What the tools do
 
 AQuery is a compiler. It reads an AQuery source file with the `.a` extension and generates a q program with the `.q` extension. KDB-X provides the q runtime that executes the generated program.
@@ -13,22 +15,13 @@ These notes use the AQuery compiler from <https://github.com/josepablocam/aquery
 
 Every command in these notes runs AQuery and KDB-X inside the course Docker image. Students do not install Java, Scala, AQuery, PyKX, or q directly on the host.
 
-## Supported hosts
+The course image contains x86 Linux binaries for AMD64.
 
-The course image contains x86-64 Linux binaries.
-
-| Host | Status |
-| --- | --- |
-| x86-64 Linux with Docker | Course test passed |
-| Apple Silicon Mac with Docker Desktop | Course test passed through `linux/amd64` emulation |
-| Intel Mac with Docker Desktop | Not tested for this course |
-| Windows with Docker Desktop or WSL | Not tested for this course |
-
-The complete Apple Silicon workflow passed on an M1 Mac with Docker Desktop 4.87. Native KDB-X and AQuery also worked on that Mac, but the course uses Docker so Linux and Mac students follow the same commands.
+The Mac M-series Docker path passed on an M1 Mac with Docker Desktop 4.87. Native KDB-X and AQuery also worked on Mac M-series, but the course uses Docker so students follow the same commands.
 
 ## Requirements
 
-- Docker Engine on x86-64 Linux, or Docker Desktop on a Mac
+- Docker Engine on x86 Linux, or Mac M-series Docker
 - Git
 - A KX Developer account and Community license
 
@@ -39,7 +32,7 @@ docker version
 docker info
 ```
 
-Both commands must report a running Docker server. On an Apple Silicon Mac, the server architecture may be ARM64. The course commands explicitly request the `linux/amd64` image.
+Both commands must report a running Docker server. With Mac M-series Docker, the server architecture may be ARM64. The course commands explicitly request the `linux/amd64` image.
 
 ## Get the course repository
 
@@ -85,7 +78,7 @@ docker build --platform=linux/amd64 -t aquery:linux-x86 \
   -f aquery/docker-x86-linux/Dockerfile aquery
 ```
 
-The first build downloads the pinned base image, KDB-X, AQuery source, Scala dependencies, and PyKX. It is slower on Apple Silicon because Docker emulates an AMD64 processor.
+The first build downloads the pinned base image, KDB-X, AQuery source, Scala dependencies, and PyKX. It is slower with Mac M-series Docker because Docker emulates an AMD64 processor.
 
 Confirm the image architecture:
 
@@ -227,7 +220,7 @@ Do not paste the license into an issue or support message.
 
 Keep `--platform=linux/amd64` on both `docker build` and `docker run`. The image contains AMD64 binaries.
 
-### Bind mount is empty on macOS
+### Bind mount is empty with Mac M-series Docker
 
 Open Docker Desktop's file-sharing settings and confirm that the repository directory is shared. Then rerun the command from the repository root.
 
@@ -239,14 +232,7 @@ Mount the directory containing both the `.a` file and its data to `/work`. Refer
 
 Record the complete `docker build` output. Do not replace the pinned image digests or AQuery revision with unverified versions.
 
-## Verified reference result
-
-The complete example passed on August 30, 2026 in both environments:
-
-- x86-64 Linux through Modal
-- Apple M1 macOS through Docker Desktop 4.87 using `linux/amd64`
-
-Both runs generated an 8,002-byte q program and returned `banana = 7` and `coffee = 12`.
+Last verified August 30, 2026. See the [validation record](README.md#validation-record).
 
 ## References
 

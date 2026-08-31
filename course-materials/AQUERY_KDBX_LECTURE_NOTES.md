@@ -45,10 +45,9 @@ Run the remaining commands from the repository root.
 
 ## Get a KDB-X Community license
 
-1. Open the official KDB-X installation page: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
-2. Sign in or create a KX Developer account.
-3. Obtain the complete base64-encoded Community license value.
-4. Keep the license private. Do not place it in Git, screenshots, lecture notes, or shared chat messages.
+1. Sign in or create an account at the [KX Developer Center](https://developer.kx.com/products/kdb-x/install).
+2. Obtain the complete base64-encoded Community license value.
+3. Keep the license private. Do not place it in Git, screenshots, lecture notes, or shared chat messages.
 
 Create the local environment file:
 
@@ -62,6 +61,8 @@ Edit `.env` and replace the example value:
 ```env
 KDB_LICENSE_B64=paste_the_complete_base64_license_value_here
 ```
+
+The Developer Center link is for obtaining the license value used by `.env`. Do not use its host installation command for this course. The course Docker build installs the pinned KDB-X and q archive with `aquery/image/install_kdbx.sh`.
 
 Confirm that Git does not include the file:
 
@@ -236,7 +237,8 @@ Last verified August 30, 2026. See the [validation record](README.md#validation-
 
 ## References
 
-- KDB-X installation and licensing: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
+- KDB-X and q installation: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
+- KDB-X Community license for `.env`: [KX Developer Center](https://developer.kx.com/products/kdb-x/install)
 - AQuery source: <https://github.com/josepablocam/aquery>
 - Docker Desktop: <https://docs.docker.com/desktop/>
 - Course repository: <https://github.com/gpu004/advance-database>

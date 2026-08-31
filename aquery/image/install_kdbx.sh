@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install KDB-X (q) for Linux x86_64 Docker image builds.
-# Docs: https://code.kx.com/kdb-x/get_started/kdb-x-install.html
+# Installation docs: https://code.kx.com/kdb-x/get_started/kdb-x-install.html
 # Binary only. Docker provides KDB_LICENSE_B64 at runtime through .env.
 #
 # Pins: bump KDBX_VERSION + KDBX_L64_SHA256 together when upgrading.

@@ -28,7 +28,8 @@ Students using CIMS should connect through `access.cims.nyu.edu`, then move to t
 ## Installation links for the course website
 
 - Docker Desktop: <https://docs.docker.com/desktop/>
-- KDB-X and q: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
+- KDB-X and q installation: <https://code.kx.com/kdb-x/get_started/kdb-x-install.html>
+- KDB-X Community license for `.env`: [KX Developer Center](https://developer.kx.com/products/kdb-x/install)
 - Course repository: <https://github.com/gpu004/advance-database>
 - ReproZip: <https://github.com/VIDA-NYU/reprozip#quickstart>
 - ReproUnzip: <https://reprozip.readthedocs.io/en/latest/unpacking.html>

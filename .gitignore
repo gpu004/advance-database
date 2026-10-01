@@ -18,6 +18,9 @@ example/reprozip_sales/.reprozip-trace/
 example/reprozip_sales/sales-demo.rpz
 example/reprozip_sales/replay/
 
+# Local Modal/QEMU experiment and generated artifacts
+/reprozip/qemu-modal/
+
 # Virtual environments
 .venv/
 venv/

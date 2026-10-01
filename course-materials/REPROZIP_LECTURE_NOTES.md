@@ -1,6 +1,6 @@
 # ReproZip with Docker on x86 Linux
 
-ReproZip tracing needs x86 Linux. Mac M-series Docker fails. See [platform support](README.md#platform-support) for the tested hosts.
+The course ReproZip tracing workflow requires x86 Linux. Tracing failed with Mac M-series Docker during course testing. See [platform support](README.md#platform-support) for the tested hosts.
 
 ## What ReproZip does
 
@@ -76,7 +76,7 @@ docker run --rm -it --platform=linux/amd64 \
   reprozip:linux-x86
 ```
 
-`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
+`--user` runs the container as your host user. You own the files it creates and can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!` because the container has no username for your user ID.
 
 `--cap-add=SYS_PTRACE` is recommended for tracing. Recent Docker versions allow `ptrace` by default, but older Docker or kernel versions and some hosts require this flag. The bind mount maps the current host directory to `/work`, so traces and bundles remain on the host after the container exits.
 
@@ -229,7 +229,7 @@ Exit the container and confirm that the `docker run` command includes:
 --cap-add=SYS_PTRACE
 ```
 
-If tracing still fails, record the hostname, kernel, Docker version, exact command, ReproZip version, and complete error. Ask course staff whether `ptrace` is permitted on that host.
+If tracing still fails, record the hostname, kernel, Docker version, exact command, ReproZip version, and complete error. Ask course staff whether that host permits `ptrace`.
 
 ### Trace directory already exists
 
@@ -242,7 +242,7 @@ An earlier trace is still in the project directory. Use `reprozip trace --overwr
 
 ### Cannot delete files created by the container
 
-Files created by a container started without `--user` belong to `root`. On the host, `rm` fails with `Permission denied` inside root-owned directories, and the program cannot overwrite a root-owned output file. Remove every generated path with a root container from the project directory, then use the `docker run` command above from then on.
+A container started without `--user` creates files owned by `root`. On the host, `rm` fails with `Permission denied` inside root-owned directories. Your program also cannot overwrite root-owned output files. From the project directory, use a root container to remove the generated files and directories. For later runs, use the `docker run` command above with `--user`.
 
 For the workflow in these notes, the generated paths are the trace, the bundle, the unpacked directory, and the program output:
 
@@ -275,7 +275,7 @@ Inspect `.reprozip-trace/config.yml`, remove unrelated files from the configurat
 
 Test in a fresh directory. Retrace while the original program opens every required file.
 
-Last verified August 30, 2026. See the [validation record](README.md#validation-record).
+The [validation record](README.md#validation-record) documents passing tests on August 30, 2026.
 
 ## References
 

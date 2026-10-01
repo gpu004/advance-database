@@ -23,7 +23,7 @@ docker run --rm -it --platform=linux/amd64 \
   reprozip:linux-x86
 ```
 
-`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
+`--user` runs the container as your host user. You own the files it creates and can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!` because the container has no username for your user ID.
 
 Run the remaining commands inside the container.
 
@@ -59,13 +59,13 @@ Open `.reprozip-trace/config.yml` with your text editor on the host. Check the r
 reprozip pack sales-demo.rpz
 ```
 
-Keep `total.py` and `sales.csv` unchanged between tracing and packing. Packing copies their contents at that point.
+Keep `total.py` and `sales.csv` unchanged between tracing and packing. `reprozip pack` copies the files as they exist when you run it.
 
 See the [ReproZip packing documentation](https://reprozip.readthedocs.io/en/latest/packing.html).
 
 ## Inspect and reproduce the bundle
 
-These commands also work on another compatible Linux machine with ReproUnzip installed, after copying `sales-demo.rpz` there:
+To replay on another compatible Linux machine, install ReproUnzip and copy `sales-demo.rpz` there. Then run:
 
 ```bash
 reprounzip info sales-demo.rpz
@@ -87,7 +87,7 @@ The directory backend does not isolate the program from the host filesystem. Rep
 
 Enter `exit` to leave the container. The bundle, trace, and replay directory remain in `example/reprozip_sales/` on the host.
 
-For another run, remove only the generated `.reprozip-trace/`, `sales-demo.rpz`, and `replay/` entries. Keep the two source files. Files created by an older container started without `--user` belong to `root`. Remove them with a root container from `example/reprozip_sales`:
+For another run, remove only the generated `.reprozip-trace/`, `sales-demo.rpz`, and `replay/` entries. Keep `total.py` and `sales.csv`. Files created by an older container started without `--user` belong to `root`. Remove them with a root container from `example/reprozip_sales`:
 
 ```bash
 docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
@@ -98,4 +98,4 @@ See the troubleshooting section of the [ReproZip lecture notes](../../course-mat
 
 ## Verification
 
-Tested on Modal in an x86 Linux guest. The original and reproduced outputs both printed `Total revenue: 45`. Replay also passed after moving the original Python and CSV files away from their recorded paths.
+Tests on Modal in an x86 Linux guest produced `Total revenue: 45` in both the original run and replay. Replay also passed after the test moved the original Python and CSV files away from their recorded paths.

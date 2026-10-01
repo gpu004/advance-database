@@ -2,9 +2,9 @@
 
 This image contains ReproZip 1.3.2 and ReproUnzip 1.3.2. It requires an x86 Linux Docker host.
 
-Student instructions: start with the [ReproZip lecture notes](../../course-materials/REPROZIP_LECTURE_NOTES.md). This file is the build/run reference for the image.
+Start with the [ReproZip lecture notes](../../course-materials/REPROZIP_LECTURE_NOTES.md) for student instructions. This file describes how to build and run the image.
 
-ReproZip tracing needs x86 Linux. Mac M-series Docker fails. See [platform support](../../course-materials/README.md#platform-support).
+The course ReproZip tracing workflow requires x86 Linux. Tracing failed with Mac M-series Docker during course testing. See [platform support](../../course-materials/README.md#platform-support).
 
 ## Build the image
 
@@ -27,7 +27,7 @@ docker run --rm -it --platform=linux/amd64 \
   reprozip:linux-x86
 ```
 
-`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
+`--user` runs the container as your host user. You own the files it creates and can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!` because the container has no username for your user ID.
 
 Files created below `/work` remain in the host directory after the container exits.
 

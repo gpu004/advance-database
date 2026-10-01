@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Materialize kc.lic from KDB_LICENSE_B64, then exec.
-# Inject with Docker: --env-file .env (repo root).
+# Decode KDB_LICENSE_B64 into kc.lic, then run the requested command.
+# Pass the license to Docker with --env-file .env from the repository root.
 set -euo pipefail
 [[ -n "${KDB_LICENSE_B64:-}" ]] || {
   echo "KDB_LICENSE_B64 unset (use docker --env-file .env)" >&2

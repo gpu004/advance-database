@@ -68,7 +68,7 @@ docker run --rm -it --platform=linux/amd64 \
   reprozip:linux-x86
 ```
 
-`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
+`--user` runs the container as your host user. You own the files it creates and can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!` because the container has no username for your user ID.
 
 The current host directory is now `/work` inside the container. Files created below `/work` remain on the host.
 
@@ -228,7 +228,7 @@ docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
   rm -rf .reprozip-trace check smoke-test.rpz output.txt new_input.txt result.txt
 ```
 
-The container is disposable. The bind-mounted project files are not.
+Docker removes the container when it exits. Files in the bind-mounted project directory remain on the host.
 
 ## What to submit for a course project
 
@@ -240,6 +240,6 @@ At minimum, submit:
 - the language and runtime version
 - any assumptions about the input files or host
 
-Before submitting, repeat `reprounzip directory setup` and `reprounzip directory run` in a fresh directory. A successful `reprozip pack` command alone does not prove the bundle can be reproduced.
+Before submitting, repeat `reprounzip directory setup` and `reprounzip directory run` in a fresh directory. A successful `reprozip pack` command alone does not prove that ReproUnzip can rerun the program.
 
-Last verified August 30, 2026. See the [validation record](README.md#validation-record).
+The [validation record](README.md#validation-record) documents passing tests on August 30, 2026.

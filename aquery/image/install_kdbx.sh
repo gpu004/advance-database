@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Install KDB-X (q) for Linux x86_64 Docker image builds.
+# Install KDB-X and q for Linux x86_64 Docker image builds.
 # Installation docs: https://code.kx.com/kdb-x/get_started/kdb-x-install.html
-# Binary only. Docker provides KDB_LICENSE_B64 at runtime through .env.
+# Install the binary without a license. Docker supplies KDB_LICENSE_B64 from .env at runtime.
 #
-# Pins: bump KDBX_VERSION + KDBX_L64_SHA256 together when upgrading.
+# Update KDBX_VERSION and KDBX_L64_SHA256 together when upgrading.
 set -euo pipefail
 
 KDBX_HOME="${KDBX_HOME:-/opt/kx}"
-# Resolved from portal ~latest~ redirect on 2026-07-15 → 5.0.20260706.
+# The portal's ~latest~ URL redirected to 5.0.20260706 on 2026-07-15.
 KDBX_VERSION="${KDBX_VERSION:-5.0.20260706}"
 KDBX_L64_SHA256="${KDBX_L64_SHA256:-d4588ad228063a79a145281249dc01262a4d88146f6b5c085b0ea31acb605691}"
 BASE_URL="https://portal.dl.kx.com/assets/raw/kdb-x/kdb-x/${KDBX_VERSION}"
@@ -46,7 +46,7 @@ fi
 mkdir -p "${KDBX_HOME}/bin" "${KDBX_HOME}/q" "${KDBX_HOME}/mod"
 install -m 0755 "$Q_BINARY" "${KDBX_HOME}/bin/q"
 
-# ELF x86-64 check — do not invoke q (needs a license).
+# Check for an x86-64 ELF binary. Do not run q because it needs a license.
 file "${KDBX_HOME}/bin/q" | grep -Eq 'ELF.*(x86-64|x86_64|AMD64)' || {
   echo "installed q is not an x86-64 ELF binary:" >&2
   file "${KDBX_HOME}/bin/q" >&2

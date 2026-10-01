@@ -1,8 +1,8 @@
 # AQuery, KDB-X, and ReproZip course material
 
-Prepared for Advanced Database Systems, Fall 2026.
+These notes cover Advanced Database Systems for Fall 2026.
 
-AQuery runs in Docker on Mac or Linux. ReproZip only works on x86 Linux. Mac students need the course compute server for the ReproZip project.
+AQuery runs in Docker on Mac or Linux. The course ReproZip tracing workflow requires x86 Linux. Mac students need the course compute server for the ReproZip project.
 
 These notes replace the older AQuery and ReproZip material.
 
@@ -18,7 +18,7 @@ These notes replace the older AQuery and ReproZip material.
 | Workflow | Mac M-series | Mac M-series Docker | x86 Linux |
 | --- | --- | --- | --- |
 | AQuery and KDB-X | Works | Works | Works |
-| ReproZip tracing | Untested | Failed (trace) | Works |
+| ReproZip tracing | Untested | Tracing failed | Works |
 
 The AQuery image ran successfully with Mac M-series Docker on an M1 Mac. Native KDB-X and AQuery also worked on that Mac, but the course instructions use Docker so every student follows the same workflow.
 
@@ -46,6 +46,6 @@ The Docker controls passed in an x86 Linux environment running x86-64 Debian 12 
 - ReproUnzip 1.3.2 inspected, unpacked, and reran the command.
 - The traced and reproduced outputs both contained `REPROZIP ON NYU LINUX`.
 
-The AQuery Docker workflow also passed with Mac M-series Docker on an M1 Mac with Docker Desktop 4.87. The ReproZip trace failed there and is intentionally excluded from the Mac M-series Docker instructions.
+The AQuery Docker workflow also passed with Mac M-series Docker on an M1 Mac with Docker Desktop 4.87. The ReproZip trace failed there, so the Mac M-series Docker instructions do not include tracing.
 
 The remaining host-specific check is whether the assigned NYU compute server provides Docker and permits ReproZip to use `ptrace`.

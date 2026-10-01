@@ -1,6 +1,6 @@
-# Advanced Database
+# Advanced database
 
-Docker-based course material for AQuery, KDB-X, and ReproZip.
+This repository contains Docker-based course material for AQuery, KDB-X, and ReproZip.
 
 ## Repository contents
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Install the open-source AQuery compiler (a2q) from josepablocam/aquery.
-# Linux x86_64 + Java 8 (Scala 2.11 toolchain) for Docker image builds.
+# Install a2q, the open-source AQuery compiler from josepablocam/aquery.
+# Docker image builds require Linux x86_64 and Java 8 for the Scala 2.11 toolchain.
 #
-# Pins: bump COURSIER_* / AQUERY_GIT_SHA together when upgrading.
+# Update the COURSIER_* settings and AQUERY_GIT_SHA together when upgrading.
 set -euo pipefail
 
 if [[ "$(uname -s)/$(uname -m)" != "Linux/x86_64" ]]; then
@@ -18,7 +18,7 @@ AQUERY_REPO_URL="${AQUERY_REPO_URL:-https://github.com/josepablocam/aquery.git}"
 CS="${HOME}/.local/bin/cs"
 COURSIER_VERSION="${COURSIER_VERSION:-v2.1.24}"
 CS_ASSET="cs-x86_64-pc-linux.gz"
-# sha256 of github.com/coursier/coursier release asset cs-x86_64-pc-linux.gz @ v2.1.24
+# SHA-256 of cs-x86_64-pc-linux.gz from the github.com/coursier/coursier v2.1.24 release.
 COURSIER_SHA256="${COURSIER_SHA256:-d2c0572a17fb6146ea65349b59dd216b38beff60ae22bce6e549867c6ed2eda6}"
 CS_URL="https://github.com/coursier/coursier/releases/download/${COURSIER_VERSION}/${CS_ASSET}"
 
@@ -78,7 +78,7 @@ EOF
 chmod +x "${HOME}/.local/bin/a2q"
 
 test -x "${HOME}/.local/bin/a2q"
-# a2q -h prints usage then exits 1 (by design in Aquery.scala).
+# a2q -h prints usage and exits with status 1, as defined in Aquery.scala.
 help_out="$(a2q -h 2>&1 || true)"
 printf '%s\n' "$help_out" | grep -q 'AQuery Compiler'
 

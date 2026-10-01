@@ -2,9 +2,9 @@
 
 This image contains the pinned x86-64 Linux builds of AQuery, KDB-X, q, and PyKX.
 
-It has been tested on x86 Linux and with Mac M-series Docker using `--platform=linux/amd64`.
+Course tests passed on x86 Linux and with Mac M-series Docker using `--platform=linux/amd64`.
 
-Student instructions: start with the [AQuery and KDB-X lecture notes](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md). Complete the [KDB-X Community license setup](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md#get-a-kdb-x-community-license) there before using this build/run reference.
+Start with the [AQuery and KDB-X lecture notes](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md) for student instructions. Complete the [KDB-X Community license setup](../../course-materials/AQUERY_KDBX_LECTURE_NOTES.md#get-a-kdb-x-community-license) before building and running this image.
 
 ## Build the image
 
@@ -42,4 +42,4 @@ The result contains `banana` with amount 7 and `coffee` with amount 12.
 
 ## Mac M-series Docker note
 
-Docker Desktop runs this AMD64 image through emulation. The build, compile, and q execution path passed with Mac M-series Docker on an M1 Mac. It is slower than native ARM64 execution, especially during the first image build.
+Docker Desktop runs this AMD64 image through emulation. On an M1 Mac with Docker Desktop, course tests built the image, compiled the AQuery example, and ran the generated q program. Emulation is slower than native ARM64 execution, especially during the first image build.

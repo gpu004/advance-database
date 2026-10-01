@@ -1,6 +1,6 @@
 # AQuery and KDB-X with Docker
 
-The course AQuery workflow works with Mac M-series Docker and x86 Linux. See [platform support](README.md#platform-support) for the tested hosts.
+Run AQuery and KDB-X with Docker on Mac M-series or x86 Linux. See [platform support](README.md#platform-support) for the tested hosts.
 
 ## What the tools do
 
@@ -32,7 +32,7 @@ docker version
 docker info
 ```
 
-Both commands must report a running Docker server. With Mac M-series Docker, the server architecture may be ARM64. The course commands explicitly request the `linux/amd64` image.
+Both commands must report a running Docker server. With Mac M-series Docker, the server architecture may be ARM64. The course commands request the `linux/amd64` image.
 
 ## Get the course repository
 
@@ -223,7 +223,7 @@ Keep `--platform=linux/amd64` on both `docker build` and `docker run`. The image
 
 ### Bind mount is empty with Mac M-series Docker
 
-Open Docker Desktop's file-sharing settings and confirm that the repository directory is shared. Then rerun the command from the repository root.
+Open Docker Desktop's file-sharing settings and confirm that Docker Desktop can share the repository directory. Then rerun the command from the repository root.
 
 ### AQuery cannot find a CSV file
 
@@ -233,7 +233,7 @@ Mount the directory containing both the `.a` file and its data to `/work`. Refer
 
 Record the complete `docker build` output. Do not replace the pinned image digests or AQuery revision with unverified versions.
 
-Last verified August 30, 2026. See the [validation record](README.md#validation-record).
+The [validation record](README.md#validation-record) documents passing tests on August 30, 2026.
 
 ## References
 

@@ -87,7 +87,14 @@ The directory backend does not isolate the program from the host filesystem. Rep
 
 Enter `exit` to leave the container. The bundle, trace, and replay directory remain in `example/reprozip_sales/` on the host.
 
-For another run, remove only the generated `.reprozip-trace/`, `sales-demo.rpz`, and `replay/` entries. Keep the two source files. Files created by an older container started without `--user` belong to `root`; see the troubleshooting section of the [ReproZip lecture notes](../../course-materials/REPROZIP_LECTURE_NOTES.md#cannot-delete-files-created-by-the-container).
+For another run, remove only the generated `.reprozip-trace/`, `sales-demo.rpz`, and `replay/` entries. Keep the two source files. Files created by an older container started without `--user` belong to `root`. Remove them with a root container from `example/reprozip_sales`:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
+  rm -rf .reprozip-trace replay sales-demo.rpz
+```
+
+See the troubleshooting section of the [ReproZip lecture notes](../../course-materials/REPROZIP_LECTURE_NOTES.md#cannot-delete-files-created-by-the-container) for details.
 
 ## Verification
 

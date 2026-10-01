@@ -215,6 +215,19 @@ docker run --rm -it --platform=linux/amd64 \
 
 To trace again in this container, use `reprozip trace --overwrite` as shown in step 6.
 
+To start over from step 5, remove the generated files and keep `demo.py` and `input.txt`:
+
+```bash
+rm -rf .reprozip-trace check smoke-test.rpz output.txt new_input.txt result.txt
+```
+
+If an older container started without `--user` created these files, they belong to `root`. Run the same removal through a root container from `$HOME/reprozip-demo` instead:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
+  rm -rf .reprozip-trace check smoke-test.rpz output.txt new_input.txt result.txt
+```
+
 The container is disposable. The bind-mounted project files are not.
 
 ## What to submit for a course project

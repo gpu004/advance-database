@@ -242,12 +242,30 @@ An earlier trace is still in the project directory. Use `reprozip trace --overwr
 
 ### Cannot delete files created by the container
 
-Files created by a container started without `--user` belong to `root`, so `rm` on the host fails with `Permission denied`. Remove them with a root container, then use the `docker run` command above from then on:
+Files created by a container started without `--user` belong to `root`. On the host, `rm` fails with `Permission denied` inside root-owned directories, and the program cannot overwrite a root-owned output file. Remove every generated path with a root container from the project directory, then use the `docker run` command above from then on.
+
+For the workflow in these notes, the generated paths are the trace, the bundle, the unpacked directory, and the program output:
 
 ```bash
 docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
-  rm -rf .reprozip-trace bundle-check project.rpz
+  rm -rf .reprozip-trace bundle-check project.rpz output.txt
 ```
+
+For the [worked tutorial](REPROZIP_TUTORIAL.md), run this from `$HOME/reprozip-demo`:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
+  rm -rf .reprozip-trace check smoke-test.rpz output.txt new_input.txt result.txt
+```
+
+For the [Python sales example](../example/reprozip_sales/README.md), run this from `example/reprozip_sales`:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
+  rm -rf .reprozip-trace replay sales-demo.rpz
+```
+
+For your own project, list every file or directory the container created, including program outputs and test-run directories. Never include source or input files.
 
 ### Bundle is unexpectedly large
 

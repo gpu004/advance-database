@@ -13,8 +13,14 @@ __pycache__/
 # AQuery-generated q files
 *.generated.q
 
+# ReproZip Python demo outputs
+example/reprozip_sales/.reprozip-trace/
+example/reprozip_sales/sales-demo.rpz
+example/reprozip_sales/replay/
+
 # Virtual environments
 .venv/
 venv/
 
 AGENTS.md
+page.html

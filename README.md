@@ -8,6 +8,7 @@ Docker-based course material for AQuery, KDB-X, and ReproZip.
 - [`aquery/`](aquery/docker-x86-linux/README.md) contains the pinned AQuery and KDB-X image.
 - [`reprozip/`](reprozip/README.md) contains the pinned ReproZip image and x86 Linux instructions.
 - [`example/simple_sales/`](example/simple_sales/README.md) contains a small AQuery example with three rows and one filter.
+- [`example/reprozip_sales/`](example/reprozip_sales/README.md) contains a small Python sales total example for ReproZip and ReproUnzip.
 
 ## Getting started
 

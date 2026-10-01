@@ -2,6 +2,8 @@
 
 This tutorial creates a small Python program, traces it, builds an `.rpz` bundle, and reruns it through ReproUnzip.
 
+For a smaller example with source files already in the repository, use the [Python sales total](../example/reprozip_sales/README.md).
+
 You need Docker on x86 Linux. Do not run this tutorial with Mac M-series Docker. The trace failed in that environment during course testing.
 
 ## 1. Check the host

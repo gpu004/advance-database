@@ -11,6 +11,7 @@ These notes replace the older AQuery and ReproZip material.
 - [`AQUERY_KDBX_LECTURE_NOTES.md`](AQUERY_KDBX_LECTURE_NOTES.md) explains AQuery, KDB-X, q, licensing, Docker setup, and the compile-and-run workflow.
 - [`REPROZIP_LECTURE_NOTES.md`](REPROZIP_LECTURE_NOTES.md) explains the ReproZip workflow and the commands students need for a project submission.
 - [`REPROZIP_TUTORIAL.md`](REPROZIP_TUTORIAL.md) is a worked example that traces, packs, inspects, unpacks, and reruns a small Python program.
+- [`../example/reprozip_sales/`](../example/reprozip_sales/README.md) is a smaller ReproZip demo that adds three CSV revenues and prints `Total revenue: 45`.
 
 ## Platform support
 

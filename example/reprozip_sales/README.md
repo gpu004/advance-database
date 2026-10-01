@@ -18,9 +18,12 @@ docker build --platform=linux/amd64 -t reprozip:linux-x86 \
 
 docker run --rm -it --platform=linux/amd64 \
   --cap-add=SYS_PTRACE \
+  --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD/example/reprozip_sales:/work" -w /work \
   reprozip:linux-x86
 ```
+
+`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
 
 Run the remaining commands inside the container.
 
@@ -84,7 +87,7 @@ The directory backend does not isolate the program from the host filesystem. Rep
 
 Enter `exit` to leave the container. The bundle, trace, and replay directory remain in `example/reprozip_sales/` on the host.
 
-For another run, remove only the generated `.reprozip-trace/`, `sales-demo.rpz`, and `replay/` entries. Keep the two source files.
+For another run, remove only the generated `.reprozip-trace/`, `sales-demo.rpz`, and `replay/` entries. Keep the two source files. Files created by an older container started without `--user` belong to `root`; see the troubleshooting section of the [ReproZip lecture notes](../../course-materials/REPROZIP_LECTURE_NOTES.md#cannot-delete-files-created-by-the-container).
 
 ## Verification
 

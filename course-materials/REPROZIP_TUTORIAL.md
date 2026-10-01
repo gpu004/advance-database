@@ -63,9 +63,12 @@ Run this command from `$HOME/reprozip-demo`:
 ```bash
 docker run --rm -it --platform=linux/amd64 \
   --cap-add=SYS_PTRACE \
+  --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:/work" -w /work \
   reprozip:linux-x86
 ```
+
+`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
 
 The current host directory is now `/work` inside the container. Files created below `/work` remain on the host.
 
@@ -92,11 +95,17 @@ Stop and fix the program if this command fails.
 reprozip trace python3 demo.py input.txt output.txt
 ```
 
+If `.reprozip-trace` already exists from an earlier attempt, `reprozip trace` stops with `Trace directory .reprozip-trace exists`. Use `--overwrite` to replace the earlier trace, or `--continue` to add this run to it:
+
+```bash
+reprozip trace --overwrite python3 demo.py input.txt output.txt
+```
+
 Confirm that the trace exists:
 
 ```bash
 ls -la .reprozip-trace
-less .reprozip-trace/config.yml
+cat .reprozip-trace/config.yml
 ```
 
 Check the recorded command and review the file list for credentials, private files, and unrelated data.
@@ -133,6 +142,8 @@ mkdir -p check
 reprounzip directory setup smoke-test.rpz check/unpacked
 reprounzip directory run check/unpacked
 ```
+
+`reprounzip directory setup` stops with `Target directory exists` if `check/unpacked` is already there. Run `rm -rf check/unpacked` before repeating the setup.
 
 The command must finish with status 0.
 
@@ -197,9 +208,12 @@ cd "$HOME/reprozip-demo"
 
 docker run --rm -it --platform=linux/amd64 \
   --cap-add=SYS_PTRACE \
+  --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:/work" -w /work \
   reprozip:linux-x86
 ```
+
+To trace again in this container, use `reprozip trace --overwrite` as shown in step 6.
 
 The container is disposable. The bind-mounted project files are not.
 

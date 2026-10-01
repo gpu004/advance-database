@@ -71,11 +71,14 @@ Change to the project directory that contains the program and its inputs. Then s
 ```bash
 docker run --rm -it --platform=linux/amd64 \
   --cap-add=SYS_PTRACE \
+  --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:/work" -w /work \
   reprozip:linux-x86
 ```
 
-`--cap-add=SYS_PTRACE` is required for tracing. The bind mount maps the current host directory to `/work`, so traces and bundles remain on the host after the container exits.
+`--user` runs the container as your host user, so files it creates belong to you and you can edit or delete them without `sudo`. `-e HOME=/tmp` gives ReproZip a writable home directory. The shell prompt may show `I have no name!`; this is expected.
+
+`--cap-add=SYS_PTRACE` is recommended for tracing. Recent Docker versions allow `ptrace` by default, but older Docker or kernel versions and some hosts require this flag. The bind mount maps the current host directory to `/work`, so traces and bundles remain on the host after the container exits.
 
 The remaining commands in the required workflow run inside this container.
 
@@ -104,7 +107,7 @@ A successful trace creates `.reprozip-trace/config.yml`.
 
 ```bash
 ls -la .reprozip-trace
-less .reprozip-trace/config.yml
+cat .reprozip-trace/config.yml
 ```
 
 Before packing, inspect `config.yml` for:
@@ -227,6 +230,24 @@ Exit the container and confirm that the `docker run` command includes:
 ```
 
 If tracing still fails, record the hostname, kernel, Docker version, exact command, ReproZip version, and complete error. Ask course staff whether `ptrace` is permitted on that host.
+
+### Trace directory already exists
+
+```text
+Trace directory .reprozip-trace exists
+Please use either --continue or --overwrite
+```
+
+An earlier trace is still in the project directory. Use `reprozip trace --overwrite <command>` to replace it, or `reprozip trace --continue <command>` to add another run to the same bundle. If `reprounzip directory setup` reports `Target directory exists`, remove that unpacked directory first.
+
+### Cannot delete files created by the container
+
+Files created by a container started without `--user` belong to `root`, so `rm` on the host fails with `Permission denied`. Remove them with a root container, then use the `docker run` command above from then on:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work reprozip:linux-x86 \
+  rm -rf .reprozip-trace bundle-check project.rpz
+```
 
 ### Bundle is unexpectedly large
 
